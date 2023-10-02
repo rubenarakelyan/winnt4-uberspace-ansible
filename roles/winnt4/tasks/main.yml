@@ -1,0 +1,18 @@
+- name: Create directory
+  file: path={{ directory }} state=directory mode=0770
+
+- name: Upload image for drive C
+  copy: src={{ local_drive_c_img }} dest={{ directory }}/{{ drive_c_img_name }} mode=0660
+  notify:
+    - restart winnt4
+
+- name: Install wrapper script
+  template: src=winnt4 dest={{ user_bin }} mode=0770
+  notify:
+    - restart winnt4
+
+- name: Install service
+  template: src=winnt4.ini dest={{ user_service_dir }} mode=0660
+  notify:
+    - supervisorctl reread
+    - supervisorctl update

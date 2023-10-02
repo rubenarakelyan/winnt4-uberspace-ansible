@@ -1,0 +1,35 @@
+- name: Install nginx
+  shell: make +nginx && make install
+  args:
+    chdir: "{{ user_yum_dir }}"
+    creates: "{{ user_yum_sbin_path }}/nginx"
+
+- name: Create cache path
+  file: path={{ user_home }}/cache state=directory mode=0770
+
+- name: Create log path
+  file: path={{ user_home }}/logs/nginx state=directory mode=0770
+
+- name: Install nginx service config
+  template: src=nginx.ini dest={{ user_service_dir }} mode=0660
+  notify:
+    - supervisorctl reread
+    - supervisorctl update
+
+- name: Install nginx config
+  template: src=nginx.conf dest={{ user_yum_etc_path }}/nginx/nginx.conf mode=0660
+  notify: restart nginx
+
+- name: Install nginx proxy configuration
+  template: src=proxy.conf dest={{ user_yum_etc_path }}/nginx/conf.d/proxy.conf mode=0660
+  notify: restart nginx
+
+- block:
+    - set_fact:
+        search_string: "/ http:{{ server_port }} => OK"
+    - command: uberspace web backend list
+      register: res
+      changed_when: false
+    - name: Set up Uberspace web backend
+      command: uberspace web backend set / --http --port {{ server_port }}
+      when: not res.stdout is search(search_string)

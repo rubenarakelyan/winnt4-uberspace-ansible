@@ -1,0 +1,2 @@
+max_conns: 8
+backend_port: 10080

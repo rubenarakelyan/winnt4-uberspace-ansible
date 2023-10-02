@@ -1,0 +1,12 @@
+- name: Install QEMU and dependencies
+  shell: make +qemu +seabios-bin +pulseaudio-libs +libiscsi +genisoimage && make install
+  args:
+    chdir: "{{ user_yum_dir }}"
+    creates: "{{ user_yum_root_dir }}/usr/bin/qemu-system-i386"
+
+- name: Install wrapper script
+  template: src=qemu-system-i386 dest={{ user_bin }} mode=0770
+
+- name: Ensure that QEMU is working
+  command: "{{ user_bin }}/qemu-system-i386 --version"
+  changed_when: false

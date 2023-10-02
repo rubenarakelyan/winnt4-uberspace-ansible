@@ -1,0 +1,20 @@
+#!/bin/bash
+
+set -e
+
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:{{ user_yum_root_dir }}/usr/lib:{{ user_yum_root_dir }}/usr/lib64"
+
+echo "Create ISO image from web root"
+{{ user_yum_bin_path }}/genisoimage -o {{ htdocs_iso_name }} /var/www/virtual/{{ ansible_user_id }}/html
+
+{{ user_bin }}/qemu-system-i386 \
+    -hda "{{ drive_c_img_name }}" \
+    -snapshot \
+    -cdrom {{ htdocs_iso_name }} \
+    -boot c \
+    -cpu pentium2 \
+    -rtc base=localtime \
+    -m {{ vm_memory_mb }} \
+    -vnc :{{ vnc_display}} \
+    -monitor telnet:127.0.0.1:{{ qemu_monitor_telnet_port }},server,nowait \
+    -net nic,model=ne2k_pci -net user,hostfwd=tcp::{{ outer_port }}-:{{ inner_port }}

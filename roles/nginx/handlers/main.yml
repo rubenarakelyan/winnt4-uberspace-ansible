@@ -1,0 +1,8 @@
+- name: supervisorctl reread
+  command: supervisorctl reread
+
+- name: supervisorctl update
+  command: supervisorctl update
+
+- name: restart nginx
+  command: supervisorctl restart nginx

@@ -1,0 +1,4 @@
+- name: Clone repository
+  git:
+    repo: 'https://github.com/aaronk6/user-yum.sh.git'
+    dest: "{{ user_yum_dir }}"
